@@ -19,36 +19,6 @@
 
 <h1 id="greetingText"> Get Clicking </h1>
 
-<?php
-
-	$db = mysqli_connect("localhost:3306", "cootkri", "Giga2gigA", "elandone");
-	if (!$db->connect_error) {
-	
-		echo("<i>Hey, bazinga!</i>");
-		$table = "visitors";
-		$ip = $_SERVER['REMOTE_ADDR'];
-		$count = 1;
-		
-		$result = mysqli_query($db, "SELECT count FROM $table WHERE ip = '$ip'");
-		if (mysqli_num_rows($result) == 0) {
-			
-			mysqli_query($db, "INSERT INTO $table (ip, count) VALUES ('$ip', '$count')");
-			
-		}
-		else {
-			
-			$row = mysqli_fetch_row($result);
-			$count += $row[0];
-			mysqli_query($db, "UPDATE $table SET count = '$count' WHERE ip = '$ip'");
-			
-		}
-		
-		mysqli_close($db);
-		
-	}
-
-?>
-
 <img id="gnomey" src="media/gnomeIcon.png" draggable="false" alt="Gnome">
 
 </div>
