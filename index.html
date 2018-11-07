@@ -1,5 +1,7 @@
 <html>
 
+<title> e Landon e </title>
+
 <style type="text/css">
 
 .unselectable {
@@ -11,6 +13,16 @@
     user-select: none;
 }
 
+nav {
+
+	float: center;
+	width: 100%;
+	height: 30px;
+	background: #80f442;
+	padding: 20px;
+
+}
+
 </style>
 
 <body class="unselectable">
@@ -19,7 +31,9 @@
 
 <h1 id="greetingText"> Get Clicking </h1>
 
-<img id="gnomey" src="media/gnomeIcon.png" draggable="false" alt="Gnome">
+<nav id="navBar"> Yo </nav>
+
+<img id="gnomey" onclick="setRandomGreeting()" src="/media/gnomeIcon.png" draggable="false" alt="Gnome">
 
 </div>
 
@@ -43,7 +57,6 @@ var greetings = [
 ];
 
 var gnome = document.getElementById("gnomey");
-gnome.style.position = 'fixed';
 var angle = 0;
 var speed = 1/2;
 var interval = setInterval(rotateGnome, 50);
@@ -56,6 +69,8 @@ function rotateGnome() {
 	}
 	
 	gnome.style.transform = "rotate(" + angle + "deg)";
+	
+	//moveDown();
 
 }
 
@@ -63,6 +78,7 @@ document.addEventListener("click", onClick);
 
 function onClick(event) {
 
+	gnome.style.position = 'fixed';
 	gnome.style.top = (event.clientY - gnome.clientHeight / 2) + 'px';
 	gnome.style.left = (event.clientX - gnome.clientWidth / 2) + 'px';
 	setRandomGreeting();
@@ -75,6 +91,25 @@ function setRandomGreeting() {
 
 	var line = greetings[Math.floor(Math.random()*greetings.length)];
 	greetingText.textContent = line;
+
+}
+
+
+var moveCounter = 0;
+function moveDown() {
+
+	var elems = document.body.getElementsByTagName("*");
+	for (var i = 0; i < elems.length; i++) {
+		
+		moveCounter++;
+		elems[i].style.position = 'relative';
+		elems[i].style.top = moveCounter + '%';
+		
+		if (moveCounter >= 100) {
+			moveCounter = -100
+		}
+	
+	}
 
 }
 
