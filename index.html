@@ -13,6 +13,12 @@
     user-select: none;
 }
 
+body {
+	
+	background: #ffffff;
+	
+}
+
 nav {
 
 	float: center;
@@ -23,7 +29,24 @@ nav {
 
 }
 
+#fortnite_dance {
+	
+	float: center;
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0%;
+	left: 0%;
+	z-index: -1;
+	background: #000000;
+	
+}
+
 </style>
+
+<video id="fortnite_dance">
+	<source src="/media/fortnite_dance.mp4" type="video/mp4">
+</video>
 
 <body class="unselectable">
 
@@ -59,7 +82,11 @@ var greetings = [
 var gnome = document.getElementById("gnomey");
 var angle = 0;
 var speed = 1/2;
-var interval = setInterval(rotateGnome, 50);
+setInterval(rotateGnome, 50);
+
+var video = document.getElementById("fortnite_dance");
+video.style.visibility = "hidden";
+var interval = null;
 
 function rotateGnome() {
 	
@@ -78,10 +105,19 @@ document.addEventListener("click", onClick);
 
 function onClick(event) {
 
-	gnome.style.position = 'fixed';
+	/*gnome.style.position = 'fixed';
 	gnome.style.top = (event.clientY - gnome.clientHeight / 2) + 'px';
 	gnome.style.left = (event.clientX - gnome.clientWidth / 2) + 'px';
-	setRandomGreeting();
+	setRandomGreeting();*/
+	
+	if (interval == null) {
+		video.style.visibility = "visible";
+		video.play();
+		interval = setInterval(moveDown, 10);
+	}/*else{
+		video.style.visibility = "hidden";
+		video.pause();
+	}*/
 
 }
 
@@ -97,17 +133,27 @@ function setRandomGreeting() {
 
 var moveCounter = 0;
 function moveDown() {
+	
+	moveCounter++;
+
+	if (moveCounter >= 100) {
+		moveCounter = -((video.duration - video.currentTime) * 1000 / 10);
+	}else if(moveCounter > -1 && moveCounter < 1){
+		moveCounter = 0;
+		clearInterval(interval);
+		interval = null;
+		video.style.visibility = "hidden";
+	}
 
 	var elems = document.body.getElementsByTagName("*");
 	for (var i = 0; i < elems.length; i++) {
 		
-		moveCounter++;
+		if (elems[i] == video) {
+			continue;
+		}
+		
 		elems[i].style.position = 'relative';
 		elems[i].style.top = moveCounter + '%';
-		
-		if (moveCounter >= 100) {
-			moveCounter = -100
-		}
 	
 	}
 
