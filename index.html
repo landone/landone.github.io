@@ -15,17 +15,25 @@
 
 body {
 	
-	background: #ffffff;
-	
+	background: url("/media/starry_night.jpg");
+	background-size: 100% 100%
+    
 }
 
 nav {
 
 	float: center;
 	width: 100%;
-	height: 30px;
-	background: #80f442;
-	padding: 20px;
+	height: 250px;
+	background: rgba(157, 174, 204, 0.65);
+
+}
+    
+h1 {
+
+    background: url("/media/header.png");
+    background-size: 100% auto;
+    padding: 40px;
 
 }
 
@@ -41,6 +49,16 @@ nav {
 	background: #000000;
 	
 }
+    
+#github {
+    
+    position: fixed;
+    bottom: 0%;
+    left: 0%;
+    background: #aaaaaa;
+    width: 250px;
+    
+}
 
 </style>
 
@@ -48,86 +66,48 @@ nav {
 	<source src="/media/fortnite_dance.mp4" type="video/mp4">
 </video>
 
-<body class="unselectable">
+<body>
 
 <div align="center">
 
-<h1 id="greetingText"> Get Clicking </h1>
+<h1>
 
-<nav id="navBar"> Yo </nav>
+<font face="Arial Black" color="#3884ff">
+    e <font color="#ffffff">Landon</font> e
+</font>
 
-<img id="gnomey" onclick="setRandomGreeting()" src="/media/gnomeIcon.png" draggable="false" alt="Gnome">
+</h1>
+
+<nav id="navBar">
+    <img id="gnomey" class="unselectable" src="/media/gnomeIcon.png" draggable="false" alt="Gnome">
+    <br>Hello friends
+</nav>
 
 </div>
 
 </body>
+    
+<div id="github">
+    <blockquote class="embedly-card"><h4><a href="https://github.com/landone">landone - Overview</a></h4><p>CS Major @ Purdue Interested in video game development - landone</p></blockquote>
+<script async src="//cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
+</div>
 
 </html>
 
 <script>
 
-var greetings = [
-	"Merry Chrysler",
-	"Yeetmus",
-	"B O D A C I O U S",
-	"Buckle Up",
-	"Eskettit",
-	"Wack.",
-	"I need a pharmacist",
-	"Fareeha, my daughter",
-	"Can of drink",
-	"Back at it"
-];
-
-var gnome = document.getElementById("gnomey");
-var angle = 0;
-var speed = 1/2;
-setInterval(rotateGnome, 50);
-
 var video = document.getElementById("fortnite_dance");
 video.style.visibility = "hidden";
 var interval = null;
-
-function rotateGnome() {
-	
-	angle += speed;
-	if (angle >= 360) {
-		angle -= 360;
-	}
-	
-	gnome.style.transform = "rotate(" + angle + "deg)";
-	
-	//moveDown();
-
-}
-
-document.addEventListener("click", onClick);
-
-function onClick(event) {
-
-	/*gnome.style.position = 'fixed';
-	gnome.style.top = (event.clientY - gnome.clientHeight / 2) + 'px';
-	gnome.style.left = (event.clientX - gnome.clientWidth / 2) + 'px';
-	setRandomGreeting();*/
-	
-	if (interval == null) {
+    
+function startMeme() {
+    
+    if (interval == null && video.readyState == 4) {
 		video.style.visibility = "visible";
 		video.play();
 		interval = setInterval(moveDown, 10);
-	}/*else{
-		video.style.visibility = "hidden";
-		video.pause();
-	}*/
-
-}
-
-var greetingText = document.getElementById("greetingText");
-
-function setRandomGreeting() {
-
-	var line = greetings[Math.floor(Math.random()*greetings.length)];
-	greetingText.textContent = line;
-
+	}
+    
 }
 
 
