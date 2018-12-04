@@ -13,20 +13,40 @@
     user-select: none;
 }
 
-body {
-	
-	background: url("/media/starry_night.jpg");
-	background-size: 100% 100%
+.nav_button {
+    
+    background-color: #3884ff;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 5px;
+    margin-left: 2%;
     
 }
 
-nav {
+body {
+	
+	background: url("/media/starry_night.jpg"), #000000;
+    background-position: center top;
+    background-repeat: repeat-x;
+    
+}
 
-	float: center;
+#content_container {
+    
 	width: 100%;
 	height: 250px;
 	background: rgba(157, 174, 204, 0.65);
 
+}
+    
+#content {
+    
+    margin-left: 10%;
+    
 }
     
 h1 {
@@ -34,6 +54,15 @@ h1 {
     background: url("/media/header.png");
     background-size: 100% auto;
     padding: 40px;
+
+}
+    
+nav {    
+
+    padding: 10px;
+    color: #ffffff;
+    align-content: center;
+    text-align: center;
 
 }
 
@@ -49,16 +78,6 @@ h1 {
 	background: #000000;
 	
 }
-    
-#github {
-    
-    position: fixed;
-    bottom: 0%;
-    left: 0%;
-    background: #aaaaaa;
-    width: 250px;
-    
-}
 
 </style>
 
@@ -71,26 +90,30 @@ h1 {
 <div align="center">
 
 <h1>
-
+    
 <font face="Arial Black" color="#3884ff">
     e <font color="#ffffff">Landon</font> e
 </font>
-
+    
 </h1>
-
-<nav id="navBar">
-    <img id="gnomey" class="unselectable" src="/media/gnomeIcon.png" draggable="false" alt="Gnome">
-    <br>Hello friends
+    
+</div>
+    
+<nav>
+    <a class="nav_button" href="https://github.com/landone"> Github </a>
+    <a class="nav_button" href="https://www.youtube.com/channel/UCC1sMXY5yUzQgMbuNm8rxSg"> Youtube </a>
+    <a class="nav_button" href="https://steamcommunity.com/id/thecoot/"> Steam </a>
+    <button class="nav_button" onclick="startMeme()"> Meme </button>
 </nav>
 
+<div id="content_container">
+    <div id="content">
+        <img id="gnomey" class="unselectable" src="/media/gnomeIcon.png" draggable="false" alt="Gnome">
+        <br>Hello friends
+    </div>
 </div>
 
 </body>
-    
-<div id="github">
-    <blockquote class="embedly-card"><h4><a href="https://github.com/landone">landone - Overview</a></h4><p>CS Major @ Purdue Interested in video game development - landone</p></blockquote>
-<script async src="//cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
-</div>
 
 </html>
 
