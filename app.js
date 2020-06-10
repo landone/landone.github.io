@@ -1,27 +1,69 @@
 var gl;
 var canvas = document.getElementById('game-surface');
-var vertexShader;
-var fragShader;
-var triVBO;
+var posAttrib;
+var colorAttrib;
+var program;
+
+var tri1;
+var tri2;
+var triVerts = [
+  0.5, 0.375, 1, 0, 0,
+  0.0, -0.375, 0, 1, 0,
+  1.0, -0.375, 0, 0, 1
+];
+
+var tri2Verts = [
+  -0.5, 0.375, 1, 0, 0,
+  -1.0, -0.375, 0, 0, 1,
+  0.0, -0.375, 0, 1, 0
+];
+
+class Mesh {
+
+  constructor(verts) {
+    this.VBO = 0;
+    this.buildVBO(verts);
+  }
+
+  draw() {
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
+    gl.vertexAttribPointer(posAttrib, 2, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 0);
+    gl.enableVertexAttribArray(posAttrib);
+
+    gl.vertexAttribPointer(colorAttrib, 3, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+    gl.enableVertexAttribArray(colorAttrib);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  buildVBO(vertexArray) {
+    this.VBO = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray), gl.STATIC_DRAW);
+  }
+
+}
 
 var FitCanvas = function () {
 
   canvas.setAttribute("style", "position:fixed;top:0px;left:0px;");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.clearColor(1,0,0,1);
-  gl.disable(gl.SCISSOR_TEST);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.enable(gl.SCISSOR_TEST);
-  gl.scissor(1, 1, canvas.width - 2, canvas.height - 2);
-  gl.clearColor(0, 0, 0, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.viewport(0, 0, canvas.width, canvas.height)
   Draw();
 
 }
 
-var InitDemo = function () {
+var Draw = function() {
+
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  tri1.draw();
+  tri2.draw();
+
+}
+
+var InitWebGL = function () {
 
   gl = canvas.getContext('webgl');
 
@@ -34,9 +76,6 @@ var InitDemo = function () {
     alert('Browser does not support WebGL');
     return;
   }
-
-  gl.clearColor(0.4, 0.6, 0.8, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   var vertexShaderSrc = [
   "precision mediump float;",
@@ -59,8 +98,8 @@ var InitDemo = function () {
   "}",
   ].join('\n');
 
-  vertexShader = gl.createShader(gl.VERTEX_SHADER);
-  fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
   gl.shaderSource(vertexShader, vertexShaderSrc);
   gl.shaderSource(fragShader, fragShaderSrc);
@@ -77,7 +116,7 @@ var InitDemo = function () {
     return;
   }
 
-  var program = gl.createProgram();
+  program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragShader);
   gl.linkProgram(program);
@@ -86,35 +125,18 @@ var InitDemo = function () {
     return;
   }
 
-  var triVerts = [
-    0.0, 0.375, 1, 0, 0,
-    -0.5, -0.375, 0, 1, 0,
-    0.5, -0.375, 0, 0, 1
-  ];
-
-  triVBO = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, triVBO);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triVerts), gl.STATIC_DRAW);
-
-  var posAttrib = gl.getAttribLocation(program, "vertPos");
-  gl.vertexAttribPointer(posAttrib, 2, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 0);
-  gl.enableVertexAttribArray(posAttrib);
-
-  var colorAttrib = gl.getAttribLocation(program, "vertColor");
-  gl.vertexAttribPointer(colorAttrib, 3, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-  gl.enableVertexAttribArray(colorAttrib);
+  posAttrib = gl.getAttribLocation(program, "vertPos");
+  colorAttrib = gl.getAttribLocation(program, "vertColor");
 
   gl.useProgram(program);
-  gl.linkProgram(program);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+
+  tri1 = new Mesh(triVerts);
+  tri2 = new Mesh(tri2Verts);
 
   FitCanvas();
-
-}
-
-var Draw = function() {
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, triVBO);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
 
 }
 
