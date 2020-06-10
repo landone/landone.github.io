@@ -1,44 +1,31 @@
 import * as vec4 from "./glMatrix/vec4.js";
 import * as mat4 from "./glMatrix/mat4.js";
-
-var memat = mat4.create();
-console.log(memat);
+import * as Objects from "./objects.js";
+import * as Shaders from "./shaders.js"
 
 var gl;
 var canvas = document.getElementById('game-surface');
-var posAttrib;
-var colorAttrib;
-var program;
 
-var tri1;
-var tri2;
-var triVerts = [
-  0.5, 0.375, 1, 0, 0,
-  0.0, -0.375, 0, 1, 0,
-  1.0, -0.375, 0, 0, 1
-];
-
-var tri2Verts = [
-  -0.5, 0.375, 1, 0, 0,
-  -1.0, -0.375, 0, 0, 1,
-  0.0, -0.375, 0, 1, 0
-];
+var obj1 = -1;
 
 class Mesh {
 
   constructor(verts) {
     this.VBO = 0;
+    this.VERT_COUNT = verts.length / Objects.VERTEX_SIZE;
     this.buildVBO(verts);
   }
 
   draw() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
-    gl.vertexAttribPointer(posAttrib, 2, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 0);
-    gl.enableVertexAttribArray(posAttrib);
 
-    gl.vertexAttribPointer(colorAttrib, 3, gl.FLOAT, gl.FALSE, 5 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-    gl.enableVertexAttribArray(colorAttrib);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 0);
+    gl.enableVertexAttribArray(0);
+
+    gl.vertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
+    gl.enableVertexAttribArray(1);
+
+    gl.drawArrays(gl.TRIANGLES, 0, this.VERT_COUNT);
   }
 
   buildVBO(vertexArray) {
@@ -64,8 +51,10 @@ var Draw = function() {
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  tri1.draw();
-  tri2.draw();
+  if (obj1 == -1) {
+    obj1 = new Mesh(Objects.SQUARE);
+  }
+  obj1.draw();
 
 }
 
@@ -83,32 +72,11 @@ var InitWebGL = function () {
     return;
   }
 
-  var vertexShaderSrc = [
-  "precision mediump float;",
-  "attribute vec2 vertPos;",
-  "attribute vec3 vertColor;",
-  "varying vec3 fragColor;",
-
-  "void main() {",
-    "fragColor = vertColor;",
-    "gl_Position = vec4(vertPos, 0.0, 1.0);",
-  "}"
-  ].join('\n');
-
-  var fragShaderSrc = [
-  "precision mediump float;",
-  "varying vec3 fragColor;",
-
-  "void main() {",
-    "gl_FragColor = vec4(fragColor, 1.0);",
-  "}",
-  ].join('\n');
-
   var vertexShader = gl.createShader(gl.VERTEX_SHADER);
   var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-  gl.shaderSource(vertexShader, vertexShaderSrc);
-  gl.shaderSource(fragShader, fragShaderSrc);
+  gl.shaderSource(vertexShader, Shaders.vertex);
+  gl.shaderSource(fragShader, Shaders.fragment);
 
   gl.compileShader(vertexShader);
   if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -122,7 +90,7 @@ var InitWebGL = function () {
     return;
   }
 
-  program = gl.createProgram();
+  var program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragShader);
   gl.linkProgram(program);
@@ -131,20 +99,17 @@ var InitWebGL = function () {
     return;
   }
 
-  posAttrib = gl.getAttribLocation(program, "vertPos");
-  colorAttrib = gl.getAttribLocation(program, "vertColor");
+  var posAttrib = gl.getAttribLocation(program, "vertPos");
+  var colorAttrib = gl.getAttribLocation(program, "vertColor");
 
   gl.useProgram(program);
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  tri1 = new Mesh(triVerts);
-  tri2 = new Mesh(tri2Verts);
-
   FitCanvas();
 
 }
 
-window.addEventListener("resize", FitCanvas);
 InitWebGL();
+window.addEventListener("resize", FitCanvas);
