@@ -1,3 +1,9 @@
+import * as vec4 from "./glMatrix/vec4.js";
+import * as mat4 from "./glMatrix/mat4.js";
+
+var memat = mat4.create();
+console.log(memat);
+
 var gl;
 var canvas = document.getElementById('game-surface');
 var posAttrib;
@@ -141,3 +147,4 @@ var InitWebGL = function () {
 }
 
 window.addEventListener("resize", FitCanvas);
+InitWebGL();
