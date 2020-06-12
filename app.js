@@ -1,16 +1,60 @@
+import * as vec3 from "./glMatrix/vec3.js";
 import * as vec4 from "./glMatrix/vec4.js";
 import * as mat4 from "./glMatrix/mat4.js";
 import * as Objects from "./objects.js";
-import * as Shaders from "./shaders.js"
 
 var gl;
 var canvas = document.getElementById('game-surface');
+var uniform_trans;
 
 var obj1 = -1;
+
+var ReadPage = function(page, callback) {
+  var xml = new XMLHttpRequest();
+  xml.open("GET", page, callback != null);
+  xml.send(null);
+  if (callback == null) {
+    return xml.responseText;
+  }
+  else {
+    xml.onreadystatechange = function () {
+      if (xml.readyState == 4 && xml.status == 200) {
+        callback(xml.responseText);
+      }
+    };
+  }
+  return "";
+}
+
+class Transform {
+
+  constructor() {
+      this.pos = vec3.create();
+      this.rot = vec3.create();
+      this.scale = vec3.fromValues(1,1,1);
+      this.posMat = mat4.create();
+      this.rotMat = mat4.create();
+      this.scaleMat = mat4.create();
+  }
+
+  getMatrix() {
+    var matrix = mat4.create();
+    mat4.translate(this.posMat, mat4.create(), this.pos);
+    mat4.rotateX(this.rotMat, mat4.create(), this.rot[0]);
+    mat4.rotateY(this.rotMat, mat4.create(), this.rot[1]);
+    mat4.rotateZ(this.rotMat, mat4.create(), this.rot[2]);
+    mat4.scale(this.scaleMat, mat4.create(), this.scale);
+    mat4.mul(matrix, this.posMat, this.rotMat);
+    mat4.mul(matrix, matrix, this.scaleMat);
+    return matrix;
+  }
+
+}
 
 class Mesh {
 
   constructor(verts) {
+    this.trans = new Transform();
     this.VBO = 0;
     this.VERT_COUNT = verts.length / Objects.VERTEX_SIZE;
     this.buildVBO(verts);
@@ -18,6 +62,8 @@ class Mesh {
 
   draw() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
+
+    gl.uniformMatrix4fv(uniform_trans, gl.FALSE, this.trans.getMatrix());
 
     gl.vertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(0);
@@ -75,8 +121,8 @@ var InitWebGL = function () {
   var vertexShader = gl.createShader(gl.VERTEX_SHADER);
   var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
 
-  gl.shaderSource(vertexShader, Shaders.vertex);
-  gl.shaderSource(fragShader, Shaders.fragment);
+  gl.shaderSource(vertexShader, ReadPage("./vertexShader.glsl"));
+  gl.shaderSource(fragShader, ReadPage("./fragmentShader.glsl"));
 
   gl.compileShader(vertexShader);
   if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -101,6 +147,8 @@ var InitWebGL = function () {
 
   var posAttrib = gl.getAttribLocation(program, "vertPos");
   var colorAttrib = gl.getAttribLocation(program, "vertColor");
+
+  uniform_trans = gl.getUniformLocation(program, "transMat");
 
   gl.useProgram(program);
 
