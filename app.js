@@ -1,14 +1,17 @@
-import * as vec3 from "./glMatrix/vec3.js";
-import * as vec4 from "./glMatrix/vec4.js";
-import * as mat4 from "./glMatrix/mat4.js";
 import * as Objects from "./objects.js";
+import Transform from "./Transform.js";
+import Camera from "./Camera.js";
+import Mesh from "./Mesh.js";
 
 var gl;
 var canvas = document.getElementById('game-surface');
 var uniform_trans;
 var uniform_view;
 
+var mainCam = new Camera();
+
 var obj1 = -1;
+var obj2 = -1;
 
 var ReadPage = function(page, callback) {
   var xml = new XMLHttpRequest();
@@ -27,98 +30,13 @@ var ReadPage = function(page, callback) {
   return "";
 }
 
-class Transform {
-
-  constructor() {
-      this.pos = vec3.create();
-      this.rot = vec3.create();
-      this.scale = vec3.fromValues(1,1,1);
-      this.posMat = mat4.create();
-      this.rotMat = mat4.create();
-      this.scaleMat = mat4.create();
-  }
-
-  getMatrix() {
-    var matrix = mat4.create();
-    mat4.translate(this.posMat, mat4.create(), this.pos);
-    mat4.rotateZ(this.rotMat, mat4.create(), this.rot[2]);
-    mat4.rotateY(this.rotMat, mat4.create(), this.rot[1]);
-    mat4.rotateX(this.rotMat, mat4.create(), this.rot[0]);
-    mat4.scale(this.scaleMat, mat4.create(), this.scale);
-    mat4.mul(matrix, this.posMat, this.rotMat);
-    mat4.mul(matrix, matrix, this.scaleMat);
-    return matrix;
-  }
-
-}
-
-class Camera {
-
-  constructor() {
-    this.trans = new Transform();
-    this.forward = vec3.fromValues(0, 0, 1);
-    this.up = vec3.fromValues(0, 1, 0);
-    this.aspect = canvas.width / canvas.height;
-    this.fov = Math.PI * 70 / 180;
-    this.near = 0.01;
-    this.far = 10000;
-    this.perspective = mat4.create();
-    mat4.perspective(this.perspective, this.fov, this.aspect, this.near, this.far);
-  }
-
-  getMatrix() {
-    this.aspect = canvas.width / canvas.height;
-    mat4.perspective(this.perspective, this.fov, this.aspect, this.near, this.far);
-    var result = mat4.create();
-    var lookMat = mat4.create();
-    var center = vec3.create();
-    vec3.add(center, this.trans.pos, this.forward);
-    mat4.lookAt(lookMat, this.trans.pos, center, this.up);
-    mat4.mul(result, this.perspective, lookMat);
-    return result;
-  }
-
-}
-
-class Mesh {
-
-  constructor(verts) {
-    this.cam = new Camera();
-    this.trans = new Transform();
-    this.VBO = 0;
-    this.VERT_COUNT = verts.length / Objects.VERTEX_SIZE;
-    this.buildVBO(verts);
-  }
-
-  draw() {
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
-
-    gl.uniformMatrix4fv(uniform_trans, gl.FALSE, this.trans.getMatrix());
-    gl.uniformMatrix4fv(uniform_view, gl.FALSE, this.cam.getMatrix());
-
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 0);
-    gl.enableVertexAttribArray(0);
-
-    gl.vertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
-    gl.enableVertexAttribArray(1);
-
-    gl.drawArrays(gl.TRIANGLES, 0, this.VERT_COUNT);
-  }
-
-  buildVBO(vertexArray) {
-    this.VBO = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexArray), gl.STATIC_DRAW);
-  }
-
-}
-
 var FitCanvas = function () {
 
   canvas.setAttribute("style", "position:fixed;top:0px;left:0px;");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height)
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  mainCam.setAspect(canvas.width / canvas.height);
   Draw();
 
 }
@@ -127,12 +45,17 @@ var Draw = function() {
 
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.uniformMatrix4fv(uniform_view, gl.FALSE, mainCam.getMatrix());
 
   if (obj1 == -1) {
-    obj1 = new Mesh(Objects.TRIANGLE);
-    obj1.trans.pos[2] = 2.0;
+    obj1 = new Mesh(gl, Objects.TRIANGLE);
+    obj1.trans.setPos(0, 0, 2);
+    obj2 = new Mesh(gl, Objects.CUBE);
+    obj2.trans.setPos(-2, 0, 3);
   }
-  obj1.draw();
+  obj1.draw(uniform_trans);
+  obj2.trans.addRot(0, 0, Math.PI * 3.0 / 180.0);
+  obj2.draw(uniform_trans);
 
 }
 
