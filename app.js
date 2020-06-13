@@ -6,6 +6,7 @@ import * as Objects from "./objects.js";
 var gl;
 var canvas = document.getElementById('game-surface');
 var uniform_trans;
+var uniform_view;
 
 var obj1 = -1;
 
@@ -40,9 +41,9 @@ class Transform {
   getMatrix() {
     var matrix = mat4.create();
     mat4.translate(this.posMat, mat4.create(), this.pos);
-    mat4.rotateX(this.rotMat, mat4.create(), this.rot[0]);
-    mat4.rotateY(this.rotMat, mat4.create(), this.rot[1]);
     mat4.rotateZ(this.rotMat, mat4.create(), this.rot[2]);
+    mat4.rotateY(this.rotMat, mat4.create(), this.rot[1]);
+    mat4.rotateX(this.rotMat, mat4.create(), this.rot[0]);
     mat4.scale(this.scaleMat, mat4.create(), this.scale);
     mat4.mul(matrix, this.posMat, this.rotMat);
     mat4.mul(matrix, matrix, this.scaleMat);
@@ -51,9 +52,38 @@ class Transform {
 
 }
 
+class Camera {
+
+  constructor() {
+    this.trans = new Transform();
+    this.forward = vec3.fromValues(0, 0, 1);
+    this.up = vec3.fromValues(0, 1, 0);
+    this.aspect = canvas.width / canvas.height;
+    this.fov = Math.PI * 70 / 180;
+    this.near = 0.01;
+    this.far = 10000;
+    this.perspective = mat4.create();
+    mat4.perspective(this.perspective, this.fov, this.aspect, this.near, this.far);
+  }
+
+  getMatrix() {
+    this.aspect = canvas.width / canvas.height;
+    mat4.perspective(this.perspective, this.fov, this.aspect, this.near, this.far);
+    var result = mat4.create();
+    var lookMat = mat4.create();
+    var center = vec3.create();
+    vec3.add(center, this.trans.pos, this.forward);
+    mat4.lookAt(lookMat, this.trans.pos, center, this.up);
+    mat4.mul(result, this.perspective, lookMat);
+    return result;
+  }
+
+}
+
 class Mesh {
 
   constructor(verts) {
+    this.cam = new Camera();
     this.trans = new Transform();
     this.VBO = 0;
     this.VERT_COUNT = verts.length / Objects.VERTEX_SIZE;
@@ -64,6 +94,7 @@ class Mesh {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
 
     gl.uniformMatrix4fv(uniform_trans, gl.FALSE, this.trans.getMatrix());
+    gl.uniformMatrix4fv(uniform_view, gl.FALSE, this.cam.getMatrix());
 
     gl.vertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, Objects.VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(0);
@@ -98,7 +129,8 @@ var Draw = function() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (obj1 == -1) {
-    obj1 = new Mesh(Objects.SQUARE);
+    obj1 = new Mesh(Objects.TRIANGLE);
+    obj1.trans.pos[2] = 2.0;
   }
   obj1.draw();
 
@@ -149,6 +181,7 @@ var InitWebGL = function () {
   var colorAttrib = gl.getAttribLocation(program, "vertColor");
 
   uniform_trans = gl.getUniformLocation(program, "transMat");
+  uniform_view = gl.getUniformLocation(program, "viewMat");
 
   gl.useProgram(program);
 
