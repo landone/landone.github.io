@@ -12,6 +12,7 @@ var mainCam = new Camera();
 
 var obj1 = -1;
 var obj2 = -1;
+var obj3 = -1;
 
 var ReadPage = function(page, callback) {
   var xml = new XMLHttpRequest();
@@ -32,12 +33,11 @@ var ReadPage = function(page, callback) {
 
 var FitCanvas = function () {
 
-  canvas.setAttribute("style", "position:fixed;top:0px;left:0px;");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   gl.viewport(0, 0, canvas.width, canvas.height);
   mainCam.setAspect(canvas.width / canvas.height);
-  Draw();
+  //Draw();
 
 }
 
@@ -49,19 +49,26 @@ var Draw = function() {
 
   if (obj1 == -1) {
     obj1 = new Mesh(gl, Objects.TRIANGLE);
-    obj1.trans.setPos(0, 0, 2);
+    obj1.trans.setPos(0.6, 0, 2);
     obj2 = new Mesh(gl, Objects.CUBE);
-    obj2.trans.setPos(-2, 0, 3);
+    obj2.trans.setPos(-2.5, 0, 2.5);
+    obj3 = new Mesh(gl, Objects.SQUARE);
+    obj3.trans.setPos(-0.6, 0, 2);
   }
+
+  obj1.trans.addRot(0, 0, Math.PI / 64.0);
+  obj2.trans.addRot(0, Math.PI / 64.0, 0);
+
   obj1.draw(uniform_trans);
-  obj2.trans.addRot(0, 0, Math.PI * 3.0 / 180.0);
   obj2.draw(uniform_trans);
+  obj3.draw(uniform_trans);
 
 }
 
 var InitWebGL = function () {
 
   gl = canvas.getContext('webgl');
+  canvas.setAttribute("style", "position:fixed;top:0px;left:0px;");
 
   if (!gl) {
     console.log('WebGL not supoorted falling back on experimental');
@@ -111,9 +118,11 @@ var InitWebGL = function () {
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
+  window.addEventListener("resize", FitCanvas);
   FitCanvas();
+
+  setInterval(Draw, 20);
 
 }
 
 InitWebGL();
-window.addEventListener("resize", FitCanvas);
