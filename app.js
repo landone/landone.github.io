@@ -2,11 +2,15 @@ import * as Objects from "./objects.js";
 import Transform from "./Transform.js";
 import Camera from "./Camera.js";
 import Mesh from "./Mesh.js";
+import Texture from "./Texture.js";
 
 var gl;
 var canvas = document.getElementById('game-surface');
 var uniform_trans;
 var uniform_view;
+var uniform_tex;
+
+var testTex = -1;
 
 var mainCam = new Camera();
 
@@ -46,6 +50,7 @@ var Draw = function() {
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.uniformMatrix4fv(uniform_view, gl.FALSE, mainCam.getMatrix());
+    gl.uniform1i(uniform_tex, 0);
 
   if (obj1 == -1) {
     obj1 = new Mesh(gl, Objects.TRIANGLE);
@@ -55,10 +60,11 @@ var Draw = function() {
     obj3 = new Mesh(gl, Objects.SQUARE);
     obj3.trans.setPos(-0.6, 0, 2);
   }
-
-  obj1.trans.addRot(0, 0, Math.PI / 64.0);
-  obj2.trans.addRot(0, Math.PI / 64.0, 0);
-
+    if(testTex == -1) {
+        testTex = new Texture(gl, "./media/starry_night.jpg");
+    }
+    testTex.bind();
+        
   obj1.draw(uniform_trans);
   obj2.draw(uniform_trans);
   obj3.draw(uniform_trans);
@@ -109,9 +115,11 @@ var InitWebGL = function () {
 
   var posAttrib = gl.getAttribLocation(program, "vertPos");
   var colorAttrib = gl.getAttribLocation(program, "vertColor");
+    var texAttrib = gl.getAttribLocation(program, "vertTex");
 
   uniform_trans = gl.getUniformLocation(program, "transMat");
   uniform_view = gl.getUniformLocation(program, "viewMat");
+    uniform_tex = gl.getUniformLocation(program, "texMap");
 
   gl.useProgram(program);
 
@@ -120,7 +128,7 @@ var InitWebGL = function () {
 
   window.addEventListener("resize", FitCanvas);
   FitCanvas();
-
+    
   setInterval(Draw, 20);
 
 }
