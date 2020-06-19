@@ -28,7 +28,8 @@ export default class WGL {
         this.UNIFORMS = {
             TRANS: 0,
             VIEW: 0,
-            TEX: 0
+            TEX: 0,
+            DO_COLOR: 0
         };
         this.cam = new Camera();
         this.onDraw = 0;
@@ -43,6 +44,7 @@ export default class WGL {
         self.gl.clear(self.gl.COLOR_BUFFER_BIT | self.gl.DEPTH_BUFFER_BIT);
         self.gl.uniformMatrix4fv(self.UNIFORMS.VIEW, self.gl.FALSE, self.cam.getMatrix());
         self.gl.uniform1i(self.UNIFORMS.TEX, 0);
+        self.gl.uniform1i(self.UNIFORMS.DO_COLOR, 0);
         
         if (self.onDraw != 0) {
             self.onDraw();
@@ -52,10 +54,11 @@ export default class WGL {
     
     fitCanvas() {
 
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        this.cam.setAspect(this.canvas.width / this.canvas.height);
+        self.canvas.width = window.innerWidth;
+        self.canvas.height = window.innerHeight;
+        self.gl.viewport(0, 0, self.canvas.width, self.canvas.height);
+        self.cam.setAspect(self.canvas.width / self.canvas.height);
+        self.draw();
         
     }
     
@@ -108,16 +111,18 @@ export default class WGL {
         this.UNIFORMS.TRANS = this.gl.getUniformLocation(program, "transMat");
         this.UNIFORMS.VIEW = this.gl.getUniformLocation(program, "viewMat");
         this.UNIFORMS.TEX = this.gl.getUniformLocation(program, "texMap");
+        this.UNIFORMS.DO_COLOR = this.gl.getUniformLocation(program, "doColor");
 
         this.gl.useProgram(program);
 
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
+        
+        self = this;
 
         window.addEventListener("resize", this.fitCanvas);
         this.fitCanvas();
 
-        self = this;
         setInterval(this.draw, 20);
 
     }
