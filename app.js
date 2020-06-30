@@ -59,11 +59,11 @@ var OnDraw = function() {
     obj1.draw(uniform_trans);
     obj2.draw(uniform_trans);
     obj3.draw(uniform_trans);
-    ceil.draw(uniform_trans);
     
     floorTex.bind();
     
     floor.draw(uniform_trans);
+    ceil.draw(uniform_trans);
 
 }
 
