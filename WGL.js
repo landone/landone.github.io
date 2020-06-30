@@ -25,6 +25,7 @@ export default class WGL {
         
         this.canvas = document.getElementById(canvasID);
         this.gl = 0;
+        this.program = 0;
         this.UNIFORMS = {
             TRANS: 0,
             VIEW: 0,
@@ -114,6 +115,7 @@ export default class WGL {
         this.UNIFORMS.DO_COLOR = this.gl.getUniformLocation(program, "doColor");
 
         this.gl.useProgram(program);
+        this.program = program;
 
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
