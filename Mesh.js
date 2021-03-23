@@ -21,10 +21,10 @@ export default class Mesh {
     this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, this.gl.FALSE, VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 0);
     this.gl.enableVertexAttribArray(0);
 
-    this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, this.gl.FALSE, VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 3 *                                                               Float32Array.BYTES_PER_ELEMENT);
+    this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, this.gl.FALSE, VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 3 * Float32Array.BYTES_PER_ELEMENT);
     this.gl.enableVertexAttribArray(1);
 
-    this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, this.gl.FALSE, VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 6 *                                                               Float32Array.BYTES_PER_ELEMENT);
+    this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, this.gl.FALSE, VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT, 6 * Float32Array.BYTES_PER_ELEMENT);
     this.gl.enableVertexAttribArray(2);
 
     this.gl.drawElements(this.gl.TRIANGLES, this.INDEX_COUNT, this.gl.UNSIGNED_SHORT, 0);
